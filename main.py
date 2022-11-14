@@ -1,12 +1,18 @@
 import requests
-import lxml.etree
+import lxml.html
 
+URL = "https://en.wikipedia.org/wiki/Charles_III"
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    url = "https://en.wikipedia.org/wiki/Charles_III"
-    page = requests.get(url)
-    doc = lxml.etree.fromstring(page.content)
-    print(doc)
+    # get the html of the page
+    response = requests.get(URL)
+    html = response.text
+    doc = lxml.html.fromstring(html)
+    keywords = ["I", "II", "III", "V", "IV", "VI", "VII", "VIII"]
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    for word in keywords:
+        for url in doc.xpath("//a/@href[contains(.,'%s')]" % word):
+            print(url)
+
+
+
