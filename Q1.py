@@ -16,8 +16,11 @@ if __name__ == '__main__':
     url7 = "https://en.wikipedia.org/wiki/Queen_Elizabeth_The_Queen_Mother"
     url8 = "https://en.wikipedia.org/wiki/Prince_George,_Duke_of_Kent"
     url9 = "https://en.wikipedia.org/wiki/William,_Prince_of_Wales"
+    url10 = "https://en.wikipedia.org//wiki/Anne,_Princess_Royal"
+    url11 = "https://en.wikipedia.org//wiki/Prince_Andrew,_Duke_of_York"
+    url12 = "https://en.wikipedia.org//wiki/Lady_Davina_Windsor"
 
-    response = requests.get(url2)
+    response = requests.get(url12)
     html = response.text
     doc = lxml.html.fromstring(html)
     x_path = ""
@@ -44,14 +47,16 @@ if __name__ == '__main__':
     x_path5 = "//table[@class = 'infobox vcard']/tbody/tr/th[contains(text(),'Predecessor') or contains(text(),'Successor')]/..//a/@href[contains(., 'wiki')]"
 
     #  [contains(.,'of the United Kingdom')])
-    x_path = "//table[@class = 'infobox vcard']/following-sibling::p[1]//text()"
+    # x_path = "//table[@class = 'infobox vcard']/following-sibling::p[1]//text()"
 
-    x_path = "//div[@class='plainlist']//a//text()[contains(.,'Windsor')]/..//@href[contains(.,'/wiki/')]"
+    # x_path = "//div[@class='plainlist']//a//text()[contains(.,'Windsor')]/..//@href[contains(.,'/wiki/')]"
 
     # if 'Windsor' in x_path and 'by marriage' not in x_path:
     #     return x_path
     # else:
     #     return None
+
+    x_path = "//table[@class = 'infobox vcard']/following-sibling::p[1]//text()"
 
     for url in doc.xpath(x_path):
         print(url)

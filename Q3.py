@@ -1,6 +1,11 @@
 import requests
 import lxml.html
 import lxml.etree
+import time
+
+"""
+    this class represent Crawler action
+"""
 
 
 class Crawler:
@@ -9,7 +14,7 @@ class Crawler:
         self._pages_set = set()
         # set of real Url
         self._urls = set()
-        self._max_size = 5
+        self._max_size = 30
         self._current_url = current_url
         self._verifyXpath = verifyXpath
         self._descendantXpaths = descendantXpaths
@@ -18,11 +23,13 @@ class Crawler:
         self._pairs = []
 
     def start_crawling(self):
+        limit_crawling = 0
         while True:
             # exit
-            print("size is " + str(len(self._urls)))
-            if len(self._urls) == self._max_size:
+            # print("size is " + str(limit_crawling))
+            if limit_crawling == self._max_size:
                 break
+            limit_crawling += 1
             # check if it is royalty member.
             if not is_member(self._current_url.get_url(), verifyXpath):
                 print(self._current_url.get_url() + " is not royalty member")
@@ -40,21 +47,23 @@ class Crawler:
     def update_pair(self, source, target):
         for pair in self._pairs:
             if pair[0] == source and pair[1] == target:
-                print("update")
                 pair[2] = 1
 
     def crawl(self):
         self._current_url.set_is_crawled()
-        descendants = self.get_links(self._descendantXpaths)
-        # add_item_to_set(self._urls, descendants)
+
+        # reading html.
+        response = requests.get(self._current_url.get_url())
+        html = response.text
+        time.sleep(3)
+
+        descendants = self.get_links(self._descendantXpaths, html)
         add_item_to_set(self._current_url.get_descendants(), descendants)
 
-        ancestors = self.get_links(self._ancestorXpaths)
-        # add_item_to_set(self._urls, ancestors)
+        ancestors = self.get_links(self._ancestorXpaths, html)
         add_item_to_set(self._current_url.get_ancestors(), ancestors)
 
-        others = self.get_links(self._royaltyXpaths)
-        # add_item_to_set(self._urls, others)
+        others = self.get_links(self._royaltyXpaths, html)
         add_item_to_set(self._current_url.get_other_royalties(), others)
 
         new_page = self.get_next()
@@ -68,10 +77,8 @@ class Crawler:
     def get_pairs(self):
         return self._pairs
 
-    def get_links(self, xpaths):
+    def get_links(self, xpaths, html):
         results = []
-        response = requests.get(self._current_url.get_url())
-        html = response.text
         doc = lxml.html.fromstring(html)
         for xpath in xpaths:
             for domain in doc.xpath(xpath):
@@ -96,6 +103,11 @@ class Crawler:
 
     def get_urls(self):
         return self._urls
+
+
+"""
+    this class represent Url.
+"""
 
 
 class Url:
@@ -138,6 +150,11 @@ def add_item_to_set(current_set, items):
         current_set.add(item)
 
 
+"""
+    this function build correct url.
+"""
+
+
 def fix_url(url):
     #  (url)
     if url.startswith('https://en.wikipedia.org/'):
@@ -146,15 +163,16 @@ def fix_url(url):
         return 'https://en.wikipedia.org/' + url
 
 
+"""
+this function get url and using verifyXpath to check if it is real royalty family.
+"""
+
+
 def is_member(url, verifyXpath):
     url = fix_url(url)
     response = requests.get(url)
     html = response.text
     doc = lxml.html.fromstring(html)
-
-    # this check if his king or queen in the first p.
-    # x_path = "//table[@class = 'infobox vcard']/following-sibling::p[1]//text()[contains(.,'of the United Kingdom')]"
-
     return doc.xpath(verifyXpath)
 
 
@@ -169,8 +187,10 @@ def britishCrawler(url, verifyXpath, descendantXpaths, ancestorXpaths, royaltyXp
 
 if __name__ == '__main__':
     url = "https://en.wikipedia.org/wiki/Charles_III"
-    # TODO need to add more cases.
-    verifyXpath = "//table[@class = 'infobox vcard']//a[contains(text(), 'of the United Kingdom')]/@href[contains(., 'wiki')]"
+
+    verifyXpath = "//table[@class = 'infobox vcard']/following-sibling::p[1]//text()[contains(.,'of the United Kingdom')] |" \
+                  " //table[@class = 'infobox vcard']/following-sibling::p[1]//text()[contains(.,'succession to the British throne')] |" \
+                  "//table[@class = 'infobox vcard']/following-sibling::p[1]//text()[contains(.,'heir apparent')]"
 
     descendantXpaths = ["//table[@class = 'infobox vcard']/tbody/tr/th[contains(text(),'Issue')]/..//a""/@href[contains(., 'wiki')]"]
 
