@@ -13,7 +13,7 @@ from Q4 import crawlerQuality
 class Crawler:
     def __init__(self, current_url, verifyXpath, descendantXpaths, ancestorXpaths, royaltyXpaths):
         # set of class Url
-        self._pages_set = set()
+        self._pages_set = []
         # set of real Url
         self._urls = set()
         self._max_size = 30
@@ -28,36 +28,40 @@ class Crawler:
         limit_crawling = 0
         while True:
             # exit
-            print("size is " + str(limit_crawling))
+            # print("size is " + str(limit_crawling))
             if limit_crawling == self._max_size:
                 break
-            limit_crawling += 1
+
+            while self._current_url.get_url() in self._urls:
+                new_page = self.get_next()
+                self.set_current_url(new_page)
+
             # check if it is royalty member.
             if not is_member(self._current_url.get_url(), verifyXpath):
                 print(self._current_url.get_url() + " is not royalty member")
                 new_page = self.get_next()
-                while new_page.get_is_crawled() == 1:
-                    new_page = self.get_next()
                 self.set_current_url(new_page)
                 continue
+
             source = self._current_url.get_source()
             self.update_pair(source, self._current_url.get_url())
             self._urls.add(self._current_url.get_url())
-            # print(self._current_url.get_url() + " great he is royalty member")
+            limit_crawling += 1
             self.crawl()
 
     def update_pair(self, source, target):
+
         for pair in self._pairs:
             if pair[0] == source and pair[1] == target:
                 pair[2] = 1
+                return
 
     def crawl(self):
-        self._current_url.set_is_crawled()
 
         # reading html.
         response = requests.get(self._current_url.get_url())
         html = response.text
-        time.sleep(3)
+        # time.sleep(3)
 
         descendants = self.get_links(self._descendantXpaths, html)
         add_item_to_set(self._current_url.get_descendants(), descendants)
@@ -69,11 +73,14 @@ class Crawler:
         add_item_to_set(self._current_url.get_other_royalties(), others)
 
         new_page = self.get_next()
-        while new_page.get_is_crawled() == 1:
+        while new_page.get_url() in self._urls:
             new_page = self.get_next()
         self.set_current_url(new_page)
 
     def add_pair(self, source, target):
+        for pair in self._pairs:
+            if pair[0] == source and pair[1] == target:
+                return
         self._pairs.append([source, target, 0])
 
     def get_pairs(self):
@@ -85,7 +92,7 @@ class Crawler:
         for xpath in xpaths:
             for domain in doc.xpath(xpath):
                 link = fix_url(domain)
-                self._pages_set.add(Url(link, self._current_url.get_url()))
+                self._pages_set.append(Url(link, self._current_url.get_url()))
                 results.append(link)
                 self.add_pair(self._current_url.get_url(), link)
         return results
@@ -95,7 +102,7 @@ class Crawler:
 
     def get_next(self):
         if self._pages_set:
-            item = list(self._pages_set)[0]
+            item = self._pages_set[0]
             for page in self._pages_set:
                 if page.get_descendant_counter() < item.get_descendant_counter():
                     item = page
@@ -119,17 +126,10 @@ class Url:
         self._descendant_counter = 0
         self._ancestor = set()
         self._other_royalty = set()
-        self._is_crawled = 0
         self._source = source
 
     def get_source(self):
         return self._source
-
-    def set_is_crawled(self):
-        self._is_crawled = 1
-
-    def get_is_crawled(self):
-        return self._is_crawled
 
     def get_descendants(self):
         return self._descendants
@@ -141,7 +141,7 @@ class Url:
         return self._other_royalty
 
     def get_descendant_counter(self):
-        return self._descendant_counter
+        return len(self._descendants)
 
     def get_url(self):
         return self._url

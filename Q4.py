@@ -39,6 +39,9 @@ def crawlerQuality(listOfPairs):
             if i[1] in valid_family_members:
                 valid_finds.append(i[1])
     inter = len(intersection(valid_finds, valid_family_members))
+    # print(inter)
+    # print(len(valid_family_members))
+    # print(number_of_crawls)
     answer["precision"] = inter / number_of_crawls
     answer["recall"] = inter / (len(valid_family_members)-1)
     answer["F1"] = 2 * answer["precision"] * answer["recall"] / (answer["precision"] + answer["recall"])
