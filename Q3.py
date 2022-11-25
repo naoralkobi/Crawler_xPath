@@ -28,7 +28,7 @@ class Crawler:
         limit_crawling = 0
         while True:
             # exit
-            # print("size is " + str(limit_crawling))
+            print("size is " + str(limit_crawling))
             if limit_crawling == self._max_size:
                 break
             limit_crawling += 1
