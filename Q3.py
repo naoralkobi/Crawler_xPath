@@ -3,6 +3,8 @@ import lxml.html
 import lxml.etree
 import time
 
+from Q4 import crawlerQuality
+
 """
     this class represent Crawler action
 """
@@ -183,6 +185,7 @@ def britishCrawler(url, verifyXpath, descendantXpaths, ancestorXpaths, royaltyXp
     crawler.start_crawling()
     print("finish crawling..")
     print(crawler.get_pairs())
+    return crawler.get_pairs()
 
 
 if __name__ == '__main__':
@@ -204,6 +207,8 @@ if __name__ == '__main__':
         "//td[@class = 'sidebar-content']/ul//li//a[1]//@href[contains(.,'/wiki/')]"]
 
     urls = britishCrawler(url, verifyXpath, descendantXpaths, ancestorXpaths, royaltyXpaths)
+
+    print(crawlerQuality(urls))
 
     # TODO write to file
     # print(urls)
