@@ -3,7 +3,7 @@ import lxml.html
 import lxml.etree
 import time
 
-from Q4 import crawlerQuality
+from crawlerQuality import crawlerQuality
 
 """
     this class represent Crawler action
