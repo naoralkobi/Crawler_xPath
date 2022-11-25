@@ -36,7 +36,8 @@ if __name__ == '__main__':
     descendantXpaths = "//table[@class = 'infobox vcard']/tbody/tr/th[contains(text(),'Issue')]/..//a""/@href[contains(., 'wiki')]"
     ancestorXpaths = ""
     royaltyXpaths = ["//table[@class = 'infobox vcard']/tbody/tr/th[contains(text(),'Predecessor')]/..//a/@href[contains(., 'wiki')]",
-                     "//table[@class = 'infobox vcard']/tbody/tr/th[contains(text(),'Successor')]/..//a/@href[contains(., 'wiki')]"]
+                     "//table[@class = 'infobox vcard']/tbody/tr/th[contains(text(),'Successor')]/..//a/@href[contains(., 'wiki')]",
+                     "//td[@class = 'sidebar-content']"]
 
     urls = britishCrawler(url, verifyXpath, descendantXpaths, ancestorXpaths, royaltyXpaths)
 
