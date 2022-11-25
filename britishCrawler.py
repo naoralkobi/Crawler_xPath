@@ -57,11 +57,13 @@ class Crawler:
                 return
 
     def crawl(self):
-
+        try:
         # reading html.
-        response = requests.get(self._current_url.get_url())
-        html = response.text
-        # time.sleep(3)
+            response = requests.get(self._current_url.get_url())
+            html = response.text
+            time.sleep(3)
+        except Exception as e:
+            print("An exception occurred")
 
         descendants = self.get_links(self._descendantXpaths, html)
         add_item_to_set(self._current_url.get_descendants(), descendants)
