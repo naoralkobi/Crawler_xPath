@@ -194,6 +194,10 @@ def is_member(url, verifyXpath):
 
 
 def britishCrawler(url, verifyXpath, descendantXpaths, ancestorXpaths, royaltyXpaths):
+    if not url:
+        print("url is not valid")
+        return []
+
     start_url = Url(url, url)
     crawler = Crawler(start_url, verifyXpath, descendantXpaths, ancestorXpaths, royaltyXpaths)
     # start crawling
