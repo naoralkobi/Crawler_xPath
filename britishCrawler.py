@@ -27,6 +27,8 @@ class Crawler:
 
     def start_crawling(self):
         limit_crawling = 0
+        if not self._royaltyXpaths and not self._ancestorXpaths and not self._descendantXpaths:
+            return []
         while True:
             # exit
             # print("size is " + str(limit_crawling))
@@ -35,6 +37,9 @@ class Crawler:
 
             while self._current_url.get_url() in self._urls:
                 new_page = self.get_next()
+                # checking that the new page is not none
+                if not new_page:
+                    break
                 self.set_current_url(new_page)
 
             # check if it is royalty member.
@@ -94,6 +99,9 @@ class Crawler:
     def get_links(self, xpaths, html):
         results = []
         doc = lxml.html.fromstring(html)
+        #if all xpaths are null values
+        if not xpaths:
+            return []
         for xpath in xpaths:
             for domain in doc.xpath(xpath):
                 link = fix_url(domain)
@@ -215,7 +223,6 @@ if __name__ == '__main__':
         "//td[@class = 'sidebar-content']/ul//li//a[1]//@href[contains(.,'/wiki/')]"]
 
     urls = britishCrawler(url, verifyXpath, descendantXpaths, ancestorXpaths, royaltyXpaths)
-
     print(crawlerQuality(urls))
 
     # TODO write to file
