@@ -29,6 +29,8 @@ def intersection(lst1, lst2):
 
 
 def crawlerQuality(listOfPairs):
+    if not listOfPairs:
+        return "no crawling has been done"
     answer = dict()
     valid_finds = list()
     number_of_crawls = 0
