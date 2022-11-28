@@ -23,6 +23,7 @@ class Crawler:
         self._ancestorXpaths = ancestorXpaths
         self._royaltyXpaths= royaltyXpaths
         self._pairs = []
+        self._not_royal = []
 
     def start_crawling(self):
         limit_crawling = 0
@@ -37,8 +38,9 @@ class Crawler:
                 self.set_current_url(new_page)
 
             # check if it is royalty member.
-            if not is_member(self._current_url.get_url(), verifyXpath):
-                print(self._current_url.get_url() + " is not royalty member")
+            if self._current_url.get_url() in self._not_royal or not is_member(self._current_url.get_url(), verifyXpath):
+                # print(self._current_url.get_url() + " is not royalty member")
+                self._not_royal.append(self._current_url.get_url())
                 new_page = self.get_next()
                 self.set_current_url(new_page)
                 continue
@@ -57,6 +59,7 @@ class Crawler:
                 return
 
     def crawl(self):
+        html = ""
         try:
         # reading html.
             response = requests.get(self._current_url.get_url())
@@ -173,11 +176,13 @@ this function get url and using verifyXpath to check if it is real royalty famil
 
 
 def is_member(url, verifyXpath):
-    url = fix_url(url)
-    response = requests.get(url)
-    html = response.text
-    doc = lxml.html.fromstring(html)
-    return doc.xpath(verifyXpath)
+    if verifyXpath:
+        url = fix_url(url)
+        response = requests.get(url)
+        html = response.text
+        doc = lxml.html.fromstring(html)
+        return doc.xpath(verifyXpath)
+    return True
 
 
 def britishCrawler(url, verifyXpath, descendantXpaths, ancestorXpaths, royaltyXpaths):
@@ -194,18 +199,19 @@ if __name__ == '__main__':
     url = "https://en.wikipedia.org/wiki/Charles_III"
 
     verifyXpath = "//table[@class = 'infobox vcard']/following-sibling::p[1]//text()[contains(.,'of the United Kingdom')] |" \
-                  " //table[@class = 'infobox vcard']/following-sibling::p[1]//text()[contains(.,'succession to the British throne')] |" \
-                  "//table[@class = 'infobox vcard']/following-sibling::p[1]//text()[contains(.,'heir apparent')]"
+                  " //table[@class = 'infobox biography vcard' or @class = 'infobox vcard']/following-sibling::p[1]//text()[contains(.,'succession to the British throne')] |" \
+                  "//table[@class = 'infobox vcard']/following-sibling::p[1]//text()[contains(.,'heir apparent')] |" \
+                  "//table[@class = 'infobox biography vcard' or @class = 'infobox vcard']/following-sibling::p[2]//text()[contains(.,'succession to the British throne')]"
 
-    descendantXpaths = ["//table[@class = 'infobox vcard']/tbody/tr/th[contains(text(),'Issue')]/..//a""/@href[contains(., 'wiki')]"]
+    descendantXpaths = ["//table[@class='wikitable plainrowheaders']//th//@href[contains(.,'/wiki/')]",
+                        "//table[@class='wikitable plainrowheaders']//tr//td[4]//@href[contains(.,'/wiki/')]",
+                        "//table[@class = 'infobox vcard']/tbody/tr/th[contains(text(),'Issue')]/..//a""/@href[contains(., 'wiki')]"]
 
     ancestorXpaths = [
-        "//table[@class = 'infobox vcard']/tbody/tr/th[contains(text(),'Father')]/..//a/@href[contains(., 'wiki')]",
-        "//table[@class = 'infobox vcard']/tbody/tr/th[contains(text(),'Mother')]/..//a/@href[contains(., 'wiki')]"]
+        "//table[@class='ahnentafel']//td//text()[contains(.,'of the United Kingdom')]/..//@href[contains(.,'/wiki/')]",
+        "//table[@class = 'infobox vcard']/tbody/tr/th[contains(text(),'Predecessor')]/..//a/@href[contains(., 'wiki')]"]
 
     royaltyXpaths = [
-        "//table[@class = 'infobox vcard']/tbody/tr/th[contains(text(),'Predecessor')]/..//a/@href[contains(., 'wiki')]",
-        "//table[@class = 'infobox vcard']/tbody/tr/th[contains(text(),'Successor')]/..//a/@href[contains(., 'wiki')]",
         "//td[@class = 'sidebar-content']/ul//li//a[1]//@href[contains(.,'/wiki/')]"]
 
     urls = britishCrawler(url, verifyXpath, descendantXpaths, ancestorXpaths, royaltyXpaths)

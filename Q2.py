@@ -12,9 +12,11 @@ def is_member(url):
     doc = lxml.html.fromstring(html)
 
     # this check if his king or queen in the first p.
-    x_path = "//table[@class = 'infobox vcard']/following-sibling::p[1]//text()[contains(.,'of the United Kingdom')]"
+    verifyXpath = "//table[@class = 'infobox vcard']/following-sibling::p[1]//text()[contains(.,'of the United Kingdom')] |" \
+                  " //table[@class = 'infobox biography vcard' or @class = 'infobox vcard']/following-sibling::p[1]//text()[contains(.,'succession to the British throne')] |" \
+                  "//table[@class = 'infobox vcard']/following-sibling::p[1]//text()[contains(.,'heir apparent')]"
 
-    return doc.xpath(x_path)
+    return doc.xpath(verifyXpath)
 
 
 if __name__ == '__main__':
@@ -26,7 +28,8 @@ if __name__ == '__main__':
     print(is_member("https://en.wikipedia.org/wiki/Prince_Henry,_Duke_of_Gloucester"))  # ??
     print(is_member("https://en.wikipedia.org/wiki/Prince_George,_Duke_of_Kent"))
     print(is_member("https://en.wikipedia.org/wiki/Princess_Marina_of_Greece_and_Denmark"))
-    print(is_member("https://en.wikipedia.org/wiki/George_V"))
-    print(is_member("https://en.wikipedia.org/wiki/Mary_of_Teck"))
+    print(is_member("https://en.wikipedia.org/wiki/George_V")) # yes
+    print(is_member("https://en.wikipedia.org/wiki/Mary_of_Teck")) # yes
     print(is_member("https://en.wikipedia.org/wiki/Prince_Philip,_Duke_of_Edinburgh"))
     print(is_member("https://en.wikipedia.org/wiki/Wallis_Simpson"))
+    print(is_member("https://en.wikipedia.org/wiki/Archie_Mountbatten-Windsor")) # yes

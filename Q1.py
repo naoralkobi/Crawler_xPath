@@ -19,8 +19,10 @@ if __name__ == '__main__':
     url10 = "https://en.wikipedia.org//wiki/Anne,_Princess_Royal"
     url11 = "https://en.wikipedia.org//wiki/Prince_Andrew,_Duke_of_York"
     url12 = "https://en.wikipedia.org//wiki/Lady_Davina_Windsor"
+    url13 = "https://en.wikipedia.org/wiki/Archie_Mountbatten-Windsor"
+    url14 = "https://en.wikipedia.org//wiki/Princess_Alexandra,_The_Honourable_Lady_Ogilvy"
 
-    response = requests.get(url12)
+    response = requests.get(url14)
     html = response.text
     doc = lxml.html.fromstring(html)
     x_path = ""
@@ -56,7 +58,7 @@ if __name__ == '__main__':
     # else:
     #     return None
 
-    x_path = "//table[@class = 'infobox vcard']/following-sibling::p[1]//text()"
+    x_path = "//table[@class = 'infobox biography vcard' or @class = 'infobox vcard']/following-sibling::p[2]//text()[contains(.,'succession to the British throne')]"
 
     for url in doc.xpath(x_path):
         print(url)
