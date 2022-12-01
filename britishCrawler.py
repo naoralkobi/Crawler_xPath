@@ -29,11 +29,11 @@ class Crawler:
         limit_crawling = 0
         if not self._royaltyXpaths and not self._ancestorXpaths and not self._descendantXpaths:
             return []
-        while True:
+        for i in range(self._max_size):
             # exit
             # print("size is " + str(limit_crawling))
-            if limit_crawling == self._max_size:
-                break
+            # if limit_crawling == self._max_size:
+            #     break
 
             while self._current_url.get_url() in self._urls:
                 new_page = self.get_next()
